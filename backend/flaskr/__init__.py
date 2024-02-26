@@ -109,7 +109,7 @@ def create_app(test_config=None):
     
     def delete_question(question_id):
         try:
-            question = Question.query.filter(Question.id == question_id).none_or_one()
+            question = Question.query.filter(Question.id == question_id).one_or_none()
             if question is None:
                 abort(404)
             
@@ -122,7 +122,7 @@ def create_app(test_config=None):
                 "success": True,
                 "deleted": question_id,
                 "questions": current_questions,
-                "total_qustions": len(Question.query.all())
+                "total_questions": len(Question.query.all())
             })
         
         except:
@@ -210,7 +210,7 @@ def create_app(test_config=None):
         try:
             category = Category.query.filter(Category.id == category_id).one_or_none()
             questions = Question.query.order_by(Question.id).filter(Question.category==category_id).all()
-            formatted_questions = [question.formate() for question in questions]
+            formatted_questions = [question.format() for question in questions]
             current_questions = paginate_questions(request, formatted_questions)
             
             if len(current_questions) == 0:

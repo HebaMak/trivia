@@ -101,7 +101,7 @@ class TriviaTestCase(unittest.TestCase):
         
     # test delete a question
     def test_delete_question(self):
-        res = self.client.delete("/book/1")
+        res = self.client.delete("/question/1")
         data = json.loads(res.data)
         
         question = Question.query.filter(Question.id == 1).one_or_none()
@@ -148,7 +148,7 @@ class TriviaTestCase(unittest.TestCase):
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
-        self.assertTrue(data["question"], True)
+        self.assertEqual(data["question"], True)
         
     def test_422_search_question_fail(self):
         res = self.client().post("/questions", json={"searchTerm": "not_existent_content"})
@@ -170,7 +170,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["categories"])
     
     def test_404_retrieve_question_by_category(self):
-        res = self.client().get("/categories/1000/question")
+        res = self.client().get("/categories/1000/questions")
         data = json.loads(res.data)
         
         self.assertEqual(res.status_code, 404)
@@ -180,7 +180,8 @@ class TriviaTestCase(unittest.TestCase):
 
     # test retrieve quizzes
     def test_retrieve_quizzes(self):
-        res = self.client().post("/quizzes", json= {"previous_question": [1,2,3], "quiz_category": {id: 1, type: "Science"}})
+        res = self.client().post("/quizzes", json= {"previous_question": [1,2,3], "quiz_category": {"id": 1, "type": "Science"}})
+
         data = json.loads(res.data)
         
         self.assertEqual(res.status_code, 200)
@@ -191,7 +192,7 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().post("/quizzes", json= {"previous_question": []})
         data = json.loads(res.data)
         
-        self.assertEqual(res.stTus_code, 422)
+        self.assertEqual(res.status_code, 422)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Unprocessable")
 
