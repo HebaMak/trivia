@@ -71,6 +71,174 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 
 You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
 
+### Endpoints 
+#### GET /questions
+- General:
+  - Retrieves paginated questions with 10 questions per page.
+  - Returns a list of question objects, total number of questions, and categories.
+  - Supports pagination with a query parameter for the page number.
+- Sample: `curl http://127.0.0.1:5000/questions?page=1`
+
+{
+  "success": true,
+  "questions": [
+    {
+      "answer": "Cairo",
+      "category": 1,
+      "difficulty": 1,
+      "id": 1,
+      "question": "What is the capital of Egypt?"
+    },
+    {
+      "answer": "Africa, North Africa",
+      "category": 2,
+      "difficulty": 2,
+      "id": 2,
+      "question": "on which continent is Egypt located?"
+    },
+    ...
+  ],
+  "total_questions": 20,
+  "categories": {
+    "1": "Science",
+    "2": "History",
+    ...
+  }
+}
+
+
+#### GET /categories
+- General:
+  - Retrieves all available categories.
+  - Returns a list of category objects.
+- Sample: `curl http://127.0.0.1:5000/categories`
+{
+  "success": true,
+  "categories": [
+    {
+      "id": 1,
+      "type": "Science"
+    },
+    {
+      "id": 2,
+      "type": "History"
+    },
+    {
+      "id": 3,
+      "type": "Art"
+    },
+    {
+      "id": 4,
+      "type": "Geography"
+    },
+    {
+      "id": 5,
+      "type": "Entertainment"
+    }
+  ]
+}
+
+#### DELETE /questions/{question_id}
+- General:
+  - Deletes a question by its ID.
+  - Returns the ID of the deleted question, success value, updated question list, and total questions.
+- Sample: `curl -X DELETE http://127.0.0.1:5000/questions/5`
+{
+  "success": true,
+  "deleted": 5,
+  "questions": [
+    {
+      "answer": "Cairo",
+      "category": 1,
+      "difficulty": 1,
+      "id": 1,
+      "question": "What is the capital of Egypt?"
+    },
+    ...
+  ],
+  "total_questions": 19
+}
+
+
+#### POST /questions
+- General:
+  - Creates a new question.
+  - Returns the ID of the created question, success value, updated question list, and total questions.
+- Sample: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"What is the capital of Egypt?", "answer":"Cairo", "difficulty":3, "category":2}'`
+
+{
+  "success": true,
+  "created": 21,
+  "questions": [
+    {
+      "answer": "Amsterdam",
+      "category": 1,
+      "difficulty": 1,
+      "id": 3,
+      "question": "What is the capital of Netherlands?"
+    },
+    ...
+  ],
+  "total_questions": 20
+}
+
+#### GET /categories/{category_id}/questions
+- General:
+  - Retrieves questions by category.
+  - Returns a list of question objects filtered by the specified category ID, total number of questions, and category details.
+- Sample: `curl http://127.0.0.1:5000/categories/2/questions`
+
+{
+  "success": true,
+  "questions": [
+    {
+      "answer": "Africa, North Africa",
+      "category": 2,
+      "difficulty": 2,
+      "id": 2,
+      "question": "on which continent is Egypt located?"
+    },
+    ...
+  ],
+  "total_questions": 8,
+  "category": {
+    "id": 2,
+    "type": "History"
+  }
+}
+
+#### POST /quizzes
+- General:
+  - Retrieves quizzes for playing.
+  - Returns a random question within the given category (if provided) and not one of the previous questions.
+- Sample: `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_question":[1,2], "quiz_category":{"id":1}}'`
+
+{
+  "success": true,
+  "question": {
+      "answer": "Amsterdam",
+      "category": 1,
+      "difficulty": 1,
+      "id": 3,
+      "question": "What is the capital of Netherlands?"
+  }
+}
+
+
+### Error Handling
+Errors are returned as JSON objects in the following format:
+```
+{
+    "success": False, 
+    "error": 404,
+    "message": "Resource Not Found"
+}
+```
+The API will return two error types when requests fail:
+  - 404: Resource Not Found
+  - 422: Unprocessable 
+
+
 ### Documentation Example
 
 `GET '/api/v1.0/categories'`
