@@ -49,7 +49,7 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().get("/questions?page=1000", json={"difficulty": 1})
         data = json.loads(res.data)
         
-        self.assertEqual(res.result_code, 404)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Resource Not Found")
         
@@ -70,7 +70,7 @@ class TriviaTestCase(unittest.TestCase):
         
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
-        self.assertTrue(data["message"], "Resource Not Found")
+        self.assertEqual(data["message"], "Resource Not Found")
         
         
     # test retrieve all question
@@ -90,7 +90,7 @@ class TriviaTestCase(unittest.TestCase):
         
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
-        self.assertTrue(data["message"], "Resource Not Found")
+        self.assertEqual(data["message"], "Resource Not Found")
         
         
     # test delete a question
@@ -129,7 +129,7 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         
         self.assertEqual(res.status_code, 200)
-        self.assertequal(data["success"], True)
+        self.assertEqual(data["success"], True)
         self.assertTrue(data["created"])
         self.assertTrue(data["total_questions"])
         
@@ -144,7 +144,7 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         
         self.assertEqual(res.status_code, 422)
-        self.assertequal(data["success"], False)
+        self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Unprocessable")
         
     # test search question
@@ -160,7 +160,7 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().post("/questions", json={"searchTerm": "not_existent_content"})
         data = json.loads(res.data)
         
-        self.assertEqual(res.stTus_code, 422)
+        self.assertEqual(res.status_code, 422)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Unprocessable")
         
