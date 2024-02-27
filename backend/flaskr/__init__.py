@@ -105,7 +105,6 @@ def create_app(test_config=None):
         """
         # delete a question by its id
         @app.route("/questions/<int:question_id>", methods=["DELETE"])
-        
         def delete_question(question_id):
             try:
                 question = Question.query.filter(Question.id == question_id).one_or_none()
@@ -138,6 +137,40 @@ def create_app(test_config=None):
         the form will clear and the question will appear at the end of the last page
         of the questions list in the "List" tab.
         """
+        # create a new question & get question by search_term
+        @app.route("/questions", methods=["POST"])
+        def create_question():
+            body = request.get_json()
+            
+            new_question = body.get("question", None)
+            new_answer = body.get("answer", None)
+            new_difficulty = body.get("difficulty", None)
+            new_category = body.get("category", None)
+            
+            try: 
+                question = Question(
+                    question = new_question,
+                    answer = new_answer,
+                    category = new_category,
+                    difficulty = new_difficulty
+                )
+                question.insert()
+                
+                questions = Question.query.order_by(Question.id).all()
+                current_questions = paginate_questions(request, questions)
+            
+                return jsonify({
+                    "success": True,
+                    "created": question.id,
+                    "questions": current_questions,
+                    "total_questions": len(Question.query.all())
+                })
+            except:
+                abort(422)
+
+
+
+
         """
         @DONE:
         Create a POST endpoint to get questions based on a search term.
@@ -148,45 +181,20 @@ def create_app(test_config=None):
         only question that include that string within their question.
         Try using the word "title" to start.
         """
-        # create a new question & get question by search_term
-        @app.route("/questions", methods=["POST"])
-        def create_question():
+        @app.route("/questions/search", methods=["POST"])
+        def search_question():
             body = request.get_json()
-            
-            new_question = body.get("question", None)
-            new_answer = body.get("answer", None)
-            new_difficulty = body.get("difficulty", None)
-            new_category = body.get("category", None)
             search = body.get("searchTerm", None)
             
             try: 
                 if search:
-                    questions = Question.query.order_by(Question.id).filter(Question.question.ilike(f"%{search}%")).all()
+                    questions = Question.query.filter(Question.question.ilike(f"%{search}%")).all()
                     current_questions = paginate_questions(request, questions)
                     return jsonify({
                         "success": True,
                         "questions": current_questions,
                         "total_questions": len(Question.query.all())
-                    })
-                else: 
-                    question = Question(
-                        question = new_question,
-                        answer = new_answer,
-                        category = new_category,
-                        difficulty = new_difficulty
-                    )
-                    question.insert()
-                    
-                    questions = Question.query.order_by(Question.id).all()
-                    current_questions = paginate_questions(request, questions)
-                
-                    return jsonify({
-                        "success": True,
-                        "created": question.id,
-                        "questions": current_questions,
-                        "total_questions": len(Question.query.all())
-                    })
-                
+                    })     
             except:
                 abort(422)
 
@@ -253,7 +261,7 @@ def create_app(test_config=None):
                 if category_id == 0:
                     questions_query = Question.query.filter(Question.id.notin_(previous_questions)).all()
                 else:
-                    questions_query = Question.query.filter_by(category=str(category_id)).filter(Question.id.notin(previous_questions))
+                    questions_query = Question.query.filter_by(category=str(category_id)).filter(Question.id.notin_(previous_questions))
 
                 questions = questions_query.all()
                 if not questions:
