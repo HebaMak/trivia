@@ -3,7 +3,6 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
-
 from models import setup_db, Question, Category
 
 
@@ -125,7 +124,7 @@ def create_app(test_config=None):
                 })
             
             except:
-                abort(422)
+                abort(404)
         
         
         
@@ -157,7 +156,7 @@ def create_app(test_config=None):
             new_question = body.get("question", None)
             new_answer = body.get("answer", None)
             new_difficulty = body.get("difficulty", None)
-            new_category = body.get("category", None).filter()
+            new_category = body.get("category", None)
             search = body.get("searchTerm", None)
             
             try: 
@@ -205,23 +204,27 @@ def create_app(test_config=None):
         @app.route("/categories/<int:category_id>/questions")
         def retrieve_questions_by_category(category_id):
             try:
-                category = Category.query.filter(Category.id == category_id).one_or_none()
-                questions = Question.query.order_by(Question.id).filter(Question.category==category_id).all()
+                category = Category.query.get(category_id)
+                
+                if not category: 
+                    abort(404)
+                
+                questions = Question.query.filter_by(category=str(category_id)).all()
                 current_questions = paginate_questions(request, questions)
                 
                 if len(current_questions) == 0:
                     abort(404)
                 
                 return jsonify({
-                    "success": True,
-                    "questions": current_questions,
-                    "total_questions": len(Question.query.all()),
-                    "category": category.format()
+                    'success': True,
+                    'questions': current_questions,
+                    'category': category.format()
                 })
             except:
-                abort(422)
+                abort(404)
+            
 
-
+    
         """
         @DONE:
         Create a POST endpoint to get questions to play the quiz.
@@ -238,11 +241,13 @@ def create_app(test_config=None):
         def retrieve_quizzes():
             try:
                 data = request.get_json()
-                previous_questions = data.get("previous_question", None)
+                previous_questions = data.get("previous_questions", None)
                 quiz_category = data.get("quiz_category", None)
+                print(1, previous_questions)
+                print(2, quiz_category)
                 
                 if quiz_category is None:
-                    abort(404)
+                    abort(400)
                     
                 category_id = int(quiz_category.get("id"))
                 if category_id == 0:
@@ -264,9 +269,11 @@ def create_app(test_config=None):
                     "question": question
                 })
             except:
-                abort(422)   
-            
-            
+                abort(404)   
+           
+        
+
+
         """
         @DONE:
         Create error handlers for all expected errors
@@ -280,6 +287,7 @@ def create_app(test_config=None):
                 "message": "Resource Not Found"
             }), 404
         
+
         @app.errorhandler(422)
         def unprocessable(error):
             return jsonify({
