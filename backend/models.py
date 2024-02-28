@@ -1,13 +1,15 @@
 import os
 from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
+from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_DATABASE_URI_TEST
 import json
 
 
 db = SQLAlchemy()
 
-def setup_db(app):
+def setup_db(app, database_uri=SQLALCHEMY_DATABASE_URI):
     app.config.from_object('config')
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
     db.app = app
     db.init_app(app)
     db.create_all()

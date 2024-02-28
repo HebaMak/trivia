@@ -146,6 +146,9 @@ def create_app(test_config=None):
             new_category = body.get("category", None)
             new_category = body.get("category", None)
 
+            if not new_question or not new_answer or not new_category:
+                abort(422)
+
             try: 
                 question = Question(
                     question = new_question,
@@ -187,6 +190,10 @@ def create_app(test_config=None):
             try:
                 questions = Question.query.filter(Question.question.ilike(f"%{search_term}%")).all()
                 current_questions = paginate_questions(request, questions)
+
+                if len(questions) == 0:
+                    abort(404)
+
                 return jsonify({
                     "success": True,
                     "questions": current_questions,
@@ -246,8 +253,6 @@ def create_app(test_config=None):
                 data = request.get_json()
                 previous_questions = data.get("previous_questions", None)
                 quiz_category = data.get("quiz_category", None)
-                print(1, previous_questions)
-                print(2, quiz_category)
                 
                 if quiz_category is None:
                     abort(400)
