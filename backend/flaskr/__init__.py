@@ -5,7 +5,6 @@ from flask_cors import CORS
 import random
 from models import setup_db, Question, Category
 
-
 QUESTIONS_PER_PAGE = 10
 
 # implement paginate questions
@@ -124,20 +123,19 @@ def create_app(test_config=None):
             
             except:
                 abort(404)
-        
-        
-        
+
+
+
         """
         @DONE:
         Create an endpoint to POST a new question,
         which will require the question and answer text,
         category, and difficulty score.
-
         TEST: When you submit a question on the "Add" tab,
         the form will clear and the question will appear at the end of the last page
         of the questions list in the "List" tab.
         """
-        # create a new question & get question by search_term
+        # create a new question  ===> PLEASE READ NOTES IN backend/PN.py FILE
         @app.route("/questions", methods=["POST"])
         def create_question():
             body = request.get_json()
@@ -146,7 +144,8 @@ def create_app(test_config=None):
             new_answer = body.get("answer", None)
             new_difficulty = body.get("difficulty", None)
             new_category = body.get("category", None)
-            
+            new_category = body.get("category", None)
+
             try: 
                 question = Question(
                     question = new_question,
@@ -158,17 +157,18 @@ def create_app(test_config=None):
                 
                 questions = Question.query.order_by(Question.id).all()
                 current_questions = paginate_questions(request, questions)
-            
+
                 return jsonify({
                     "success": True,
                     "created": question.id,
                     "questions": current_questions,
                     "total_questions": len(Question.query.all())
                 })
+                
             except:
                 abort(422)
 
-
+        
 
 
         """
@@ -181,22 +181,19 @@ def create_app(test_config=None):
         only question that include that string within their question.
         Try using the word "title" to start.
         """
-        @app.route("/questions/search", methods=["POST"])
-        def search_question():
-            body = request.get_json()
-            search = body.get("searchTerm", None)
-            
-            try: 
-                if search:
-                    questions = Question.query.filter(Question.question.ilike(f"%{search}%")).all()
-                    current_questions = paginate_questions(request, questions)
-                    return jsonify({
-                        "success": True,
-                        "questions": current_questions,
-                        "total_questions": len(Question.query.all())
-                    })     
+        # search for question by search_term
+        @app.route("/questions/search/<search_term>")
+        def search_question(search_term):
+            try:
+                questions = Question.query.filter(Question.question.ilike(f"%{search_term}%")).all()
+                current_questions = paginate_questions(request, questions)
+                return jsonify({
+                    "success": True,
+                    "questions": current_questions,
+                    "total_questions": len(questions)
+                }) 
             except:
-                abort(422)
+                abort(404)
 
 
 
@@ -230,9 +227,7 @@ def create_app(test_config=None):
                 })
             except:
                 abort(404)
-            
 
-    
         """
         @DONE:
         Create a POST endpoint to get questions to play the quiz.
@@ -244,7 +239,7 @@ def create_app(test_config=None):
         one question at a time is displayed, the user is allowed to answer
         and shown whether they were correct or not.
         """
-        # retrieve quizzes
+        # retrieve quizzes  ===> PLEASE READ NOTES IN backend/PN.py FILE
         @app.route("/quizzes", methods=["POST"])
         def retrieve_quizzes():
             try:
@@ -277,11 +272,9 @@ def create_app(test_config=None):
                     "question": question
                 })
             except:
-                abort(404)   
-           
+                abort(404) 
         
-
-
+    
         """
         @DONE:
         Create error handlers for all expected errors

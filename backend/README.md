@@ -164,23 +164,75 @@ You will need to provide detailed documentation of your API endpoints including 
 - General:
   - Creates a new question.
   - Returns the ID of the created question, success value, updated question list, and total questions.
-- Sample: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"What is the capital of Egypt?", "answer":"Cairo", "difficulty":3, "category":2}'`
+  - Request Body:
+      question (string): The question text.
+      answer (string): The answer to the question.
+      difficulty (integer): The difficulty level of the question (1-5).
+      category (integer): The ID of the category to which the question belongs.
+- Sample: 
+    curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"What is the capital of Egypt?", "answer":"Cairo", "difficulty":3, "category":2}'
 
+    curl -X POST -H "Content-Type: application/json" -d "{\"question\": \"Sample question?\", \"answer\": \"Sample answer\", \"category\": \"1\", \"difficulty\": \"1\"}" http://127.0.0.1:5000/questions
+
+    $body = @{
+    question = "Sample question?"
+    answer = "Sample answer"
+    category = "1"
+    difficulty = "1"
+    } | ConvertTo-Json
+    Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:5000/questions' -ContentType 'application/json' -Body $body
+        
 {
   "success": true,
   "created": 21,
   "questions": [
     {
-      "answer": "Amsterdam",
-      "category": 1,
-      "difficulty": 1,
-      "id": 3,
-      "question": "What is the capital of Netherlands?"
+      "id": 21,
+      "question": "What is the capital of Egypt?",
+      "answer": "Cairo",
+      "category": "Geography",
+      "difficulty": 3
     },
-    ...
+    {
+      "id": 22,
+      "question": "What is the capital of Italy?",
+      "answer": "Rome",
+      "category": "Geography",
+      "difficulty": 2
+    }
   ],
-  "total_questions": 20
+  "total_questions": 22
 }
+
+
+#### POST /questions/search
+- General:
+  - Retrieves questions that match the provided search term.
+  - Returns the list of matching questions, success value, and total number of questions.
+- Sample: curl http://127.0.0.1:5000/questions/search/capital
+
+{
+  "success": true,
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the capital of Egypt?",
+      "answer": "Cairo",
+      "category": "Geography",
+      "difficulty": 3
+    },
+    {
+      "id": 2,
+      "question": "What is the capital of Italy?",
+      "answer": "Rome",
+      "category": "Geography",
+      "difficulty": 2
+    }
+  ],
+  "total_questions": 2
+}
+
+
 
 #### GET /categories/{category_id}/questions
 - General:
@@ -211,7 +263,8 @@ You will need to provide detailed documentation of your API endpoints including 
 - General:
   - Retrieves quizzes for playing.
   - Returns a random question within the given category (if provided) and not one of the previous questions.
-- Sample: `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_question":[1,2], "quiz_category":{"id":1}}'`
+- Sample: `curl -X POST -H "Content-Type: application/json" -d "{\"previous_questions\":[1,2],\"quiz_category\":{\"id\":1,\"type\":\"Geography\"}}" http://localhost:5000/quizzes`
+
 
 {
   "success": true,
